@@ -2,6 +2,19 @@ import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import scala.util.Using
 
+case class Switch(isOn: Boolean)
+object Switch {
+  implicit object SwitchByteEncoder extends ByteEncodable[Switch] {
+    override def encode(a: Switch) = {
+      a match {
+        case Switch(true) => Array('1'.toByte)
+        case _ => Array('0'.toByte)
+      }
+    }
+  }
+}
+
+
 trait ByteEncodable[A] {
   def encode(a: A): Array[Byte]
 }
@@ -18,6 +31,8 @@ object ByteEncodable {
   implicit object StringEnc extends ByteEncodable[String] {
     override def encode(a: String) = a.getBytes
   }
+
+
 }
 
 trait Channel {
@@ -29,9 +44,12 @@ object FileChannel extends Channel {
 
     val bytes: Array[Byte] = enc.encode(obj)
 
+    println(bytes.toString)
+
     Using(new FileOutputStream("test")) { os =>
       os.write(bytes)
       os.flush()
+      println(bytes.mkString("Array(", ", ", ")"))
     }
 
   }
@@ -47,10 +65,5 @@ implicit object StringEnc3 extends ByteEncodable[String] {
 FileChannel.write(10)
 FileChannel.write("Hello")
 FileChannel.write("Hello")(StringEnc3)
-//FileChannel.write(List("Hello"))
-//FileChannel.write("hello")
-//FileChannel.write(10)
-
-// Goal
-// - Use the default instance of the type class by default
-// - Provide the instance for specific use case
+FileChannel.write(Switch(true))
+FileChannel.write(Switch(false))
