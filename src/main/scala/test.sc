@@ -2,6 +2,10 @@ import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import scala.util.Using
 
+trait ByteEncodable[A] {
+  def encode(a: A): Array[Byte]
+}
+
 case class Switch(isOn: Boolean)
 object Switch {
   implicit object SwitchByteEncoder extends ByteEncodable[Switch] {
@@ -12,11 +16,6 @@ object Switch {
       }
     }
   }
-}
-
-
-trait ByteEncodable[A] {
-  def encode(a: A): Array[Byte]
 }
 
 object ByteEncodable {
@@ -31,8 +30,6 @@ object ByteEncodable {
   implicit object StringEnc extends ByteEncodable[String] {
     override def encode(a: String) = a.getBytes
   }
-
-
 }
 
 trait Channel {
@@ -44,12 +41,9 @@ object FileChannel extends Channel {
 
     val bytes: Array[Byte] = enc.encode(obj)
 
-    println(bytes.toString)
-
     Using(new FileOutputStream("test")) { os =>
       os.write(bytes)
       os.flush()
-      println(bytes.mkString("Array(", ", ", ")"))
     }
 
   }
@@ -61,9 +55,11 @@ implicit object StringEnc3 extends ByteEncodable[String] {
   }
 }
 
+ByteEncodable.StringEnc.encode("hello")
 
-FileChannel.write(10)
+FileChannel.write(10)(ByteEncodable.IntEnc)
 FileChannel.write("Hello")
 FileChannel.write("Hello")(StringEnc3)
+
 FileChannel.write(Switch(true))
 FileChannel.write(Switch(false))
