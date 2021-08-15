@@ -1,9 +1,21 @@
 import cats.Functor
+import cats._
+import cats.implicits._
+import cats.data.Validated
+import cats.data.Validated.{Invalid, Valid}
 
 class Secret[A](val value: A) {
   private def hashed : String = "HASHED - "+ value
   override def toString: String = hashed
 }
+
+def validatedName(name: String) =
+  if(name.forall(_.isLetter)) Valid(name)
+  else Invalid(List("name must contain only letters"))
+
+def validateAge(age: Int): Validated[List[String], Int] =
+  if(age > 18) Valid(age)
+  else Invalid(List("age must be greater than 18"))
 
 object Secret {
   implicit val secretFunctor = new Functor[Secret] {
