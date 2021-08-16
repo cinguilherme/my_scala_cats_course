@@ -21,10 +21,3 @@ object Account {
   }
 
 }
-
-val cc1 = Account(1, "123", 10, "Cintra")
-val cc2 = Account(1, "123", 10, "Cintra")
-
-Eq[Account].eqv(cc1, cc2)
-Eq[Account].eqv(cc1, cc2)
-Eq[Account].eqv(cc1, cc2)
